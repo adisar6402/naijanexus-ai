@@ -4,7 +4,7 @@ import MapPanel from './MapPanel';
 import StatsPanel from './StatsPanel';
 import SimulationControls from './SimulationControls';
 import DataVisualization from './DataVisualization';
-import { Activity, Users, TrendingUp, AlertTriangle, Zap, Globe } from 'lucide-react';
+import { Activity, Users, TrendingUp, AlertTriangle, Zap, Globe, Menu } from 'lucide-react';
 
 interface DashboardProps {
   userRole: 'admin' | 'agency' | 'citizen' | null;
@@ -17,6 +17,7 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout, language, set
   const [activeSimulation, setActiveSimulation] = useState<string | null>(null);
   const [mapView, setMapView] = useState<'2d' | '3d'>('2d');
   const [selectedState, setSelectedState] = useState<string | null>(null);
+  const [sidebarOpen, setSidebarOpen] = useState(false);
 
   const translations = {
     en: {
@@ -79,7 +80,6 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout, language, set
 
   const t = translations[language as keyof typeof translations] || translations.en;
 
-  // Mock real-time data
   const [liveData, setLiveData] = useState({
     population: 218541065,
     gdpGrowth: 3.2,
@@ -90,7 +90,6 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout, language, set
   });
 
   useEffect(() => {
-    // Simulate real-time data updates
     const interval = setInterval(() => {
       setLiveData(prev => ({
         ...prev,
@@ -143,9 +142,19 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout, language, set
         setLanguage={setLanguage}
       />
 
-      <div className="flex h-[calc(100vh-64px)]">
+      <div className="flex h-[calc(100vh-64px)] relative overflow-hidden">
+        {/* Mobile Sidebar Toggle Button */}
+        <button 
+          className="absolute top-4 left-4 z-40 md:hidden bg-gray-800 p-2 rounded-md"
+          onClick={() => setSidebarOpen(!sidebarOpen)}
+        >
+          <Menu className="text-white w-5 h-5" />
+        </button>
+
         {/* Left Sidebar */}
-        <div className="w-80 bg-gray-900/50 backdrop-blur-xl border-r border-gray-700/30 overflow-y-auto">
+        <div className={`fixed inset-y-0 left-0 z-30 transform bg-gray-900/90 border-r border-gray-700 w-80 overflow-y-auto transition-transform duration-300 ease-in-out md:static md:translate-x-0 ${
+          sidebarOpen ? 'translate-x-0' : '-translate-x-full'
+        }`}>
           <div className="p-6">
             <div className="mb-6">
               <h2 className="text-xl font-bold text-white mb-2">{t.dashboard}</h2>
@@ -188,20 +197,20 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout, language, set
           </div>
         </div>
 
-        {/* Main Content Area */}
-        <div className="flex-1 flex flex-col">
-          {/* Top Stats Bar */}
+        {/* Main Content */}
+        <div className="flex-1 flex flex-col overflow-hidden">
+          {/* Top Bar */}
           <div className="h-16 bg-gray-900/30 backdrop-blur-xl border-b border-gray-700/30 flex items-center justify-between px-6">
             <div className="flex items-center space-x-6">
               <div className="flex items-center space-x-2">
                 <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 <span className="text-sm text-gray-300">System Online</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="hidden sm:flex items-center space-x-2">
                 <Zap className="w-4 h-4 text-yellow-400" />
                 <span className="text-sm text-gray-300">AI Confidence: 97.3%</span>
               </div>
-              <div className="flex items-center space-x-2">
+              <div className="hidden sm:flex items-center space-x-2">
                 <Globe className="w-4 h-4 text-blue-400" />
                 <span className="text-sm text-gray-300">
                   {selectedState || 'Nigeria Overview'}
@@ -222,10 +231,9 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout, language, set
             </div>
           </div>
 
-          {/* Map and Data Visualization */}
-          <div className="flex-1 flex">
-            {/* Map Panel */}
-            <div className="flex-1">
+          {/* Map + Right Panel */}
+          <div className="flex-1 flex overflow-hidden">
+            <div className="flex-1 overflow-y-auto">
               <MapPanel 
                 viewMode={mapView}
                 activeSimulation={activeSimulation}
@@ -234,8 +242,8 @@ const Dashboard: React.FC<DashboardProps> = ({ userRole, onLogout, language, set
               />
             </div>
 
-            {/* Right Panel - Data Visualization */}
-            <div className="w-96 bg-gray-900/50 backdrop-blur-xl border-l border-gray-700/30">
+            {/* Right Panel: hidden on mobile */}
+            <div className="hidden lg:block w-96 bg-gray-900/50 backdrop-blur-xl border-l border-gray-700/30 overflow-y-auto">
               <DataVisualization 
                 selectedState={selectedState}
                 activeSimulation={activeSimulation}
