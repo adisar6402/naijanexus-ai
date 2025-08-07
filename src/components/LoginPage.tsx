@@ -97,9 +97,9 @@ const LoginPage: React.FC<LoginPageProps> = ({ onLogin, language, setLanguage })
         </select>
       </div>
 
-      <div className="flex min-h-screen">
+      <div className="flex flex-col md:flex-row min-h-screen">
         {/* Left side - Branding */}
-        <div className="flex-1 flex items-center justify-center p-8">
+        <div className="flex-1 flex items-center justify-center px-6 py-10 sm:p-8">
           <div className="max-w-md text-center">
             <div className="mb-8">
               <div className="w-24 h-24 mx-auto border-3 border-cyan-400 rounded-full flex items-center justify-center mb-6 relative">
